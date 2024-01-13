@@ -1,0 +1,44 @@
+version: '3'
+services:
+  web:
+    build: .
+    # command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0' && ./bin/vite dev"
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && ./bin/dev"
+    volumes:
+      - .:/app
+      - /app/tmp
+      - /app/node_modules
+      - /app/log
+      - /app/public/vite
+      - /app/public/assets
+      - /app/app/assets/builds
+    environment:
+      - RAILS_DB_HOST=mysql
+    ports:
+      - 3000:3000
+      - 3036:3036
+    depends_on:
+      - mysql
+    tty: true
+    stdin_open: true
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=development
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+      - TZ=Asia/Tokyo
+      - MYSQL_ROOT_HOST=%
+    ports:
+      - '3306:3306'
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /tmp
